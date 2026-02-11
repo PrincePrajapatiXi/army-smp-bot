@@ -8,8 +8,14 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.get('/', (req, res) => {
-  res.send('Dashboard is Coming Soon');
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/api/stats', (req, res) => {
+  res.json({
+    serverCount: client.guilds.cache.size,
+    userCount: client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0),
+    ping: client.ws.ping
+  });
 });
 
 app.listen(PORT, () => {

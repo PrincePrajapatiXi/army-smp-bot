@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Army SMP Bot Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">🛡️ Army SMP Bot</div>
+            <nav>
+                <a href="#" class="nav-link">Home</a>
+                <a href="#" class="nav-link">Commands</a>
+                <a href="#" class="nav-link active">Dashboard</a>
+            </nav>
+        </header>
+
+        <main>
+            <section class="hero">
+                <h1>Leading the Charge.</h1>
+                <p>The ultimate utility bot for the Army SMP community.</p>
+                <div class="status-indicator">
+                    <span class="dot"></span> Online
+                </div>
+            </section>
+
+            <section class="stats-grid">
+                <div class="card">
+                    <h3>Servers</h3>
+                    <div class="value" id="server-count">--</div>
+                </div>
+                <div class="card">
+                    <h3>Members</h3>
+                    <div class="value" id="user-count">--</div>
+                </div>
+                <div class="card">
+                    <h3>Ping</h3>
+                    <div class="value" id="ping">-- ms</div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 Army SMP. All rights reserved.</p>
+        </footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
