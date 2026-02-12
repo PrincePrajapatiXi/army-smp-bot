@@ -17,8 +17,9 @@ module.exports = {
             // --- CHANNEL DETECTION (Only "welcome" channel) ---
 
             // Only send to a channel that has "welcome" in its name
+            // .normalize('NFKD') converts fancy unicode like 𝐖 → W so decorative names also match
             const channel = member.guild.channels.cache.find(ch =>
-                ch.name.toLowerCase().includes('welcome') &&
+                ch.name.normalize('NFKD').toLowerCase().includes('welcome') &&
                 ch.type === ChannelType.GuildText
             );
 
