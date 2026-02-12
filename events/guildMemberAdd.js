@@ -13,6 +13,9 @@ function getOrdinal(n) {
 module.exports = {
     name: 'guildMemberAdd',
     async execute(member) {
+        // Debug Log: Check if the event is even triggering
+        console.log(`🚀 EVENT TRIGGERED: New member ${member.user.tag} joined ${member.guild.name}`);
+
         // --- SMART CHANNEL DETECTION ---
 
         // Priority 1: Check for the server's official System Channel (where welcome msg usually goes)
@@ -35,7 +38,12 @@ module.exports = {
         }
 
         // Safety: If absolutely no channel is found, stop execution
-        if (!channel) return;
+        if (!channel) {
+            console.log(`❌ NO CHANNEL FOUND for welcome message in ${member.guild.name}`);
+            return;
+        }
+
+        console.log(`✅ FOUND CHANNEL: ${channel.name} (${channel.id})`);
 
         const memberCount = member.guild.memberCount;
 
