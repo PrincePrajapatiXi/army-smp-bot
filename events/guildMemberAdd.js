@@ -14,28 +14,17 @@ module.exports = {
         try {
             console.log(`🚀 EVENT TRIGGERED: New member ${member.user.tag} joined ${member.guild.name}`);
 
-            // --- SMART CHANNEL DETECTION ---
+            // --- CHANNEL DETECTION (Only "welcome" channel) ---
 
-            // Priority 1: Look for any channel containing "welcome" in its name
-            let channel = member.guild.channels.cache.find(ch =>
+            // Only send to a channel that has "welcome" in its name
+            const channel = member.guild.channels.cache.find(ch =>
                 ch.name.toLowerCase().includes('welcome') &&
                 ch.type === ChannelType.GuildText
             );
 
-            // Priority 2: If no welcome channel, use the server's System Channel
+            // If no welcome channel exists, do nothing (don't send to general or any other channel)
             if (!channel) {
-                channel = member.guild.systemChannel;
-            }
-
-            // Priority 3: Last resort, look for common general channels
-            if (!channel) {
-                channel = member.guild.channels.cache.find(ch =>
-                    (ch.name.toLowerCase() === 'general' || ch.name.toLowerCase() === 'chat') &&
-                    ch.type === ChannelType.GuildText
-                );
-            }
-            if (!channel) {
-                console.log(`❌ NO CHANNEL FOUND for welcome message in ${member.guild.name}`);
+                console.log(`❌ NO WELCOME CHANNEL FOUND in ${member.guild.name} — skipping`);
                 return;
             }
 
