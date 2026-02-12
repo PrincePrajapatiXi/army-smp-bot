@@ -1,6 +1,38 @@
 const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
-const { QuickDB } = require('quick.db');
-const db = new QuickDB();
+const fs = require('node:fs');
+const path = require('node:path');
+
+// Simple JSON file storage for warnings
+const WARNS_FILE = path.join(__dirname, '..', 'data', 'warns.json');
+
+function ensureDataDir() {
+    const dir = path.dirname(WARNS_FILE);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    if (!fs.existsSync(WARNS_FILE)) fs.writeFileSync(WARNS_FILE, '{}');
+}
+
+function getWarnings(guildId, userId) {
+    ensureDataDir();
+    const data = JSON.parse(fs.readFileSync(WARNS_FILE, 'utf8'));
+    const key = `${guildId}_${userId}`;
+    return data[key] || [];
+}
+
+function setWarnings(guildId, userId, warnings) {
+    ensureDataDir();
+    const data = JSON.parse(fs.readFileSync(WARNS_FILE, 'utf8'));
+    const key = `${guildId}_${userId}`;
+    data[key] = warnings;
+    fs.writeFileSync(WARNS_FILE, JSON.stringify(data, null, 2));
+}
+
+function clearWarnings(guildId, userId) {
+    ensureDataDir();
+    const data = JSON.parse(fs.readFileSync(WARNS_FILE, 'utf8'));
+    const key = `${guildId}_${userId}`;
+    delete data[key];
+    fs.writeFileSync(WARNS_FILE, JSON.stringify(data, null, 2));
+}
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -37,18 +69,17 @@ module.exports = {
         const subcommand = interaction.options.getSubcommand();
         const user = interaction.options.getUser('user');
         const guildId = interaction.guild.id;
-        const warnKey = `warns_${guildId}_${user.id}`;
 
         if (subcommand === 'add') {
             const reason = interaction.options.getString('reason');
 
-            const warnings = (await db.get(warnKey)) || [];
+            const warnings = getWarnings(guildId, user.id);
             warnings.push({
                 reason: reason,
                 moderator: interaction.user.tag,
                 date: new Date().toISOString()
             });
-            await db.set(warnKey, warnings);
+            setWarnings(guildId, user.id, warnings);
 
             const embed = new EmbedBuilder()
                 .setColor(0xFFA500)
@@ -65,7 +96,7 @@ module.exports = {
             await interaction.reply({ embeds: [embed] });
 
         } else if (subcommand === 'list') {
-            const warnings = (await db.get(warnKey)) || [];
+            const warnings = getWarnings(guildId, user.id);
 
             if (warnings.length === 0) {
                 return interaction.reply({ content: `✅ ${user.tag} has no warnings.`, ephemeral: true });
@@ -86,7 +117,7 @@ module.exports = {
             await interaction.reply({ embeds: [embed] });
 
         } else if (subcommand === 'clear') {
-            await db.delete(warnKey);
+            clearWarnings(guildId, user.id);
 
             const embed = new EmbedBuilder()
                 .setColor(0x2ECC71)
