@@ -1,5 +1,6 @@
 const { AttachmentBuilder } = require('discord.js');
-const config = require('../config.json');
+// Configuration file is no longer needed since we are dynamically finding the channel
+// const config = require('../config.json'); 
 const canvacord = require("canvacord");
 
 // Helper function to add ordinal suffix (st, nd, rd, th)
@@ -12,7 +13,16 @@ function getOrdinal(n) {
 module.exports = {
     name: 'guildMemberAdd',
     async execute(member) {
-        const channel = member.guild.channels.cache.find(ch => ch.name === config.welcomeChannelName);
+        // Dynamic Channel Search:
+        // 1. Try to find a channel named "welcome" (case-insensitive)
+        let channel = member.guild.channels.cache.find(ch => ch.name.toLowerCase() === 'welcome' && ch.isTextBased());
+
+        // 2. Fallback: If no specific welcome channel, try the server's default "System Channel"
+        if (!channel) {
+            channel = member.guild.systemChannel;
+        }
+
+        // 3. Safety Check: If neither exists, stop execution to prevent crashing
         if (!channel) return;
 
         const memberCount = member.guild.memberCount;
