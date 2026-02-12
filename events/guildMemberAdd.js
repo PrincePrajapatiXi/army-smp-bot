@@ -1,5 +1,19 @@
 const { AttachmentBuilder, ChannelType } = require('discord.js');
 const { createCanvas, loadImage } = require('canvas');
+const fs = require('node:fs');
+const path = require('node:path');
+
+const CONFIG_FILE = path.join(__dirname, '..', 'data', 'welcomeConfig.json');
+
+function getWelcomeConfig(guildId) {
+    if (!fs.existsSync(CONFIG_FILE)) return {};
+    try {
+        const data = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
+        return data[guildId] || {};
+    } catch (e) {
+        return {};
+    }
+}
 
 // --- CONFIGURATION ---
 const MAIN_SERVER_ID = '804539841932689438';
@@ -54,13 +68,42 @@ module.exports = {
             const canvas = createCanvas(width, height);
             const ctx = canvas.getContext('2d');
 
-            // Background gradient (dark theme)
-            const gradient = ctx.createLinearGradient(0, 0, width, height);
-            gradient.addColorStop(0, '#0f0c29');
-            gradient.addColorStop(0.5, '#302b63');
-            gradient.addColorStop(1, '#24243e');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, width, height);
+            // Background or Gradient
+            const config = getWelcomeConfig(member.guild.id);
+            let backgroundLoaded = false;
+
+            if (config.background) {
+                try {
+                    const bgImage = await loadImage(config.background);
+                    // Draw user image scaling to cover the canvas (cover mode)
+                    const hRatio = canvas.width / bgImage.width;
+                    const vRatio = canvas.height / bgImage.height;
+                    const ratio = Math.max(hRatio, vRatio);
+                    const centerShift_x = (canvas.width - bgImage.width * ratio) / 2;
+                    const centerShift_y = (canvas.height - bgImage.height * ratio) / 2;
+
+                    ctx.drawImage(bgImage, 0, 0, bgImage.width, bgImage.height,
+                        centerShift_x, centerShift_y, bgImage.width * ratio, bgImage.height * ratio);
+
+                    // Add dark overlay for text readability
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+                    ctx.fillRect(0, 0, width, height);
+
+                    backgroundLoaded = true;
+                } catch (err) {
+                    console.error('Failed to load custom background:', err);
+                }
+            }
+
+            if (!backgroundLoaded) {
+                // Fallback Gradient (dark theme)
+                const gradient = ctx.createLinearGradient(0, 0, width, height);
+                gradient.addColorStop(0, '#0f0c29');
+                gradient.addColorStop(0.5, '#302b63');
+                gradient.addColorStop(1, '#24243e');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, width, height);
+            }
 
             // Decorative top and bottom bars
             const barGradient = ctx.createLinearGradient(0, 0, width, 0);

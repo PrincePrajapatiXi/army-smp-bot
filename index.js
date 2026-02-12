@@ -52,7 +52,17 @@ app.listen(PORT, () => {
 
 // --- BOT SETUP ---
 const TOKEN = process.env.TOKEN;
-const CLIENT_ID = process.env.CLIENT_ID;
+const CLIENT_ID = process.env.CLIENT_ID || process.env.DISCORD_CLIENT_ID; // Fallback for Render
+
+if (!TOKEN) {
+  console.error('❌ ERROR: Missing TOKEN environment variable! Please add it in Render settings.');
+  process.exit(1);
+}
+
+if (!CLIENT_ID) {
+  console.error('❌ ERROR: Missing CLIENT_ID (or DISCORD_CLIENT_ID) environment variable! Please add it in Render settings.');
+  process.exit(1);
+}
 
 const client = new Client({
   intents: [
