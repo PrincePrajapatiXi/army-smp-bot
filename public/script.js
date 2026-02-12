@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initSmoothScroll();
     fetchStats();
     fetchCommands();
+    fetchBotAvatar();
     setInterval(fetchStats, 60000);
 });
 
@@ -278,9 +279,24 @@ async function fetchCommands() {
         // Fallback
         list.innerHTML = `
             <div class="command-item">
-                <span class="command-name">/badge</span>
-                <span class="command-desc">View and manage your server badges</span>
+                <span class="command-name">/kick</span>
+                <span class="command-desc">Kick a member from the server</span>
             </div>
         `;
+    }
+}
+
+/* --- Fetch Bot Avatar --- */
+async function fetchBotAvatar() {
+    try {
+        const response = await fetch('/api/bot');
+        const data = await response.json();
+        if (data.avatar) {
+            document.querySelectorAll('.logo-icon-img').forEach(img => {
+                img.src = data.avatar;
+            });
+        }
+    } catch (error) {
+        console.error('Bot avatar fetch failed:', error);
     }
 }
