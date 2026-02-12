@@ -13,62 +13,67 @@ function getOrdinal(n) {
 module.exports = {
     name: 'guildMemberAdd',
     async execute(member) {
-        // Debug Log: Check if the event is even triggering
-        console.log(`🚀 EVENT TRIGGERED: New member ${member.user.tag} joined ${member.guild.name}`);
+        try {
+            // Debug Log: Check if the event is even triggering
+            console.log(`🚀 EVENT TRIGGERED: New member ${member.user.tag} joined ${member.guild.name}`);
 
-        // --- SMART CHANNEL DETECTION ---
+            // --- SMART CHANNEL DETECTION ---
 
-        // Priority 1: Check for the server's official System Channel (where welcome msg usually goes)
-        let channel = member.guild.systemChannel;
+            // Priority 1: Check for the server's official System Channel (where welcome msg usually goes)
+            let channel = member.guild.systemChannel;
 
-        // Priority 2: If no system channel, search for any channel containing "welcome" (e.g., 👋-welcome)
-        if (!channel) {
-            channel = member.guild.channels.cache.find(ch =>
-                ch.name.toLowerCase().includes('welcome') &&
-                ch.type === ChannelType.GuildText
-            );
+            // Priority 2: If no system channel, search for any channel containing "welcome" (e.g., 👋-welcome)
+            if (!channel) {
+                channel = member.guild.channels.cache.find(ch =>
+                    ch.name.toLowerCase().includes('welcome') &&
+                    ch.type === ChannelType.GuildText
+                );
+            }
+
+            // Priority 3: Last resort, look for common general channels
+            if (!channel) {
+                channel = member.guild.channels.cache.find(ch =>
+                    (ch.name.toLowerCase() === 'general' || ch.name.toLowerCase() === 'chat') &&
+                    ch.type === ChannelType.GuildText
+                );
+            }
+
+            // Safety: If absolutely no channel is found, stop execution
+            if (!channel) {
+                console.log(`❌ NO CHANNEL FOUND for welcome message in ${member.guild.name}`);
+                return;
+            }
+
+            console.log(`✅ FOUND CHANNEL: ${channel.name} (${channel.id})`);
+
+            const memberCount = member.guild.memberCount;
+
+            // Setup welcome card
+            const card = new canvacord.Welcomer()
+                .setUsername(member.user.username)
+                // Canvacord requires a discriminator, even if it's '0' for new usernames
+                .setDiscriminator(member.user.discriminator === '0' ? '' : member.user.discriminator)
+                .setMemberCount(`Member #${getOrdinal(memberCount)}`)
+                .setGuildName(member.guild.name)
+                .setAvatar(member.user.displayAvatarURL({ extension: 'png', forceStatic: true }))
+                .setColor("title", "#ffffff")
+                .setColor("username-box", "#ffffff")
+                .setColor("discriminator-box", "#ffffff")
+                .setColor("message-box", "#ffffff")
+                .setColor("border", "#000000")
+                .setColor("avatar", "#000000")
+                // Placeholder background - replace with actual URL later
+                .setBackground("https://images.unsplash.com/photo-1533134486753-c833f0ed4866?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80");
+
+            // Build the card
+            const cardBuffer = await card.build();
+            const attachment = new AttachmentBuilder(cardBuffer, { name: `welcome-${member.id}.png` });
+
+            // Send the message with attachment
+            await channel.send({ content: `Welcome to **${member.guild.name}**, ${member}!`, files: [attachment] });
+            console.log(`✅ WELCOME MESSAGE SENT for ${member.user.tag}`);
+        } catch (error) {
+            console.error(`❌ WELCOME ERROR for ${member.user?.tag}:`, error);
         }
-
-        // Priority 3: Last resort, look for common general channels
-        if (!channel) {
-            channel = member.guild.channels.cache.find(ch =>
-                (ch.name.toLowerCase() === 'general' || ch.name.toLowerCase() === 'chat') &&
-                ch.type === ChannelType.GuildText
-            );
-        }
-
-        // Safety: If absolutely no channel is found, stop execution
-        if (!channel) {
-            console.log(`❌ NO CHANNEL FOUND for welcome message in ${member.guild.name}`);
-            return;
-        }
-
-        console.log(`✅ FOUND CHANNEL: ${channel.name} (${channel.id})`);
-
-        const memberCount = member.guild.memberCount;
-
-        // Setup welcome card
-        const card = new canvacord.Welcomer()
-            .setUsername(member.user.username)
-            // Canvacord requires a discriminator, even if it's '0' for new usernames
-            .setDiscriminator(member.user.discriminator === '0' ? '' : member.user.discriminator)
-            .setMemberCount(`Member #${getOrdinal(memberCount)}`)
-            .setGuildName(member.guild.name)
-            .setAvatar(member.user.displayAvatarURL({ extension: 'png', forceStatic: true }))
-            .setColor("title", "#ffffff")
-            .setColor("username-box", "#ffffff")
-            .setColor("discriminator-box", "#ffffff")
-            .setColor("message-box", "#ffffff")
-            .setColor("border", "#000000")
-            .setColor("avatar", "#000000")
-            // Placeholder background - replace with actual URL later
-            .setBackground("https://images.unsplash.com/photo-1533134486753-c833f0ed4866?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80");
-
-        // Build the card
-        const cardBuffer = await card.build();
-        const attachment = new AttachmentBuilder(cardBuffer, { name: `welcome-${member.id}.png` });
-
-        // Send the message with attachment
-        channel.send({ content: `Welcome to **${member.guild.name}**, ${member}!`, files: [attachment] });
     },
 };
