@@ -4,7 +4,7 @@ const { createCanvas, loadImage } = require('canvas');
 // --- CONFIGURATION ---
 const MAIN_SERVER_ID = '804539841932689438';
 const SERVER_IP = 'play.armysmp.fun';
-const SERVER_PORT = '19216';
+const SERVER_PORT = '25567';
 
 // Helper function to add ordinal suffix (st, nd, rd, th)
 function getOrdinal(n) {
