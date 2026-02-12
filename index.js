@@ -29,7 +29,9 @@ const CLIENT_ID = process.env.CLIENT_ID;
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMembers
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildMembers // <--- Ye line SABSE ZARURI hai!
   ]
 });
 

@@ -1,4 +1,4 @@
-const { AttachmentBuilder } = require('discord.js');
+const { AttachmentBuilder, ChannelType } = require('discord.js');
 // Configuration file is no longer needed since we are dynamically finding the channel
 // const config = require('../config.json'); 
 const canvacord = require("canvacord");
@@ -13,16 +13,28 @@ function getOrdinal(n) {
 module.exports = {
     name: 'guildMemberAdd',
     async execute(member) {
-        // Dynamic Channel Search:
-        // 1. Try to find a channel named "welcome" (case-insensitive)
-        let channel = member.guild.channels.cache.find(ch => ch.name.toLowerCase() === 'welcome' && ch.isTextBased());
+        // --- SMART CHANNEL DETECTION ---
 
-        // 2. Fallback: If no specific welcome channel, try the server's default "System Channel"
+        // Priority 1: Check for the server's official System Channel (where welcome msg usually goes)
+        let channel = member.guild.systemChannel;
+
+        // Priority 2: If no system channel, search for any channel containing "welcome" (e.g., 👋-welcome)
         if (!channel) {
-            channel = member.guild.systemChannel;
+            channel = member.guild.channels.cache.find(ch =>
+                ch.name.toLowerCase().includes('welcome') &&
+                ch.type === ChannelType.GuildText
+            );
         }
 
-        // 3. Safety Check: If neither exists, stop execution to prevent crashing
+        // Priority 3: Last resort, look for common general channels
+        if (!channel) {
+            channel = member.guild.channels.cache.find(ch =>
+                (ch.name.toLowerCase() === 'general' || ch.name.toLowerCase() === 'chat') &&
+                ch.type === ChannelType.GuildText
+            );
+        }
+
+        // Safety: If absolutely no channel is found, stop execution
         if (!channel) return;
 
         const memberCount = member.guild.memberCount;
