@@ -1,5 +1,6 @@
-const { EmbedBuilder } = require('discord.js');
+const { AttachmentBuilder } = require('discord.js');
 const config = require('../config.json');
+const canvacord = require("canvacord");
 
 // Helper function to add ordinal suffix (st, nd, rd, th)
 function getOrdinal(n) {
@@ -10,28 +11,34 @@ function getOrdinal(n) {
 
 module.exports = {
     name: 'guildMemberAdd',
-    execute(member) {
+    async execute(member) {
         const channel = member.guild.channels.cache.find(ch => ch.name === config.welcomeChannelName);
         if (!channel) return;
 
-        const accountAge = Date.now() - member.user.createdTimestamp;
-        const daysOld = Math.floor(accountAge / (1000 * 60 * 60 * 24));
         const memberCount = member.guild.memberCount;
 
-        const welcomeEmbed = new EmbedBuilder()
-            .setColor('#0099ff')
-            // Dynamic Title: Fetches the server name automatically
-            .setTitle(`Welcome to ${member.guild.name}, ${member.user.username}!`)
-            .setDescription(`We are glad to have you here! Make sure to read the rules.`)
-            .setThumbnail(member.user.displayAvatarURL())
-            .addFields(
-                { name: 'Account Age', value: `${daysOld} days old`, inline: true },
-                // New Member Count Field with Ordinal Suffix
-                { name: 'Member Count', value: `You are the **${getOrdinal(memberCount)}** member`, inline: true }
-            )
-            .setTimestamp()
-            .setFooter({ text: 'Army SMP Bot', iconURL: member.guild.iconURL() });
+        // Setup welcome card
+        const card = new canvacord.Welcomer()
+            .setUsername(member.user.username)
+            // Canvacord requires a discriminator, even if it's '0' for new usernames
+            .setDiscriminator(member.user.discriminator === '0' ? '' : member.user.discriminator)
+            .setMemberCount(`Member #${getOrdinal(memberCount)}`)
+            .setGuildName(member.guild.name)
+            .setAvatar(member.user.displayAvatarURL({ extension: 'png', forceStatic: true }))
+            .setColor("title", "#ffffff")
+            .setColor("username-box", "#ffffff")
+            .setColor("discriminator-box", "#ffffff")
+            .setColor("message-box", "#ffffff")
+            .setColor("border", "#000000")
+            .setColor("avatar", "#000000")
+            // Placeholder background - replace with actual URL later
+            .setBackground("https://images.unsplash.com/photo-1533134486753-c833f0ed4866?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80");
 
-        channel.send({ content: `Welcome ${member}!`, embeds: [welcomeEmbed] });
+        // Build the card
+        const cardBuffer = await card.build();
+        const attachment = new AttachmentBuilder(cardBuffer, { name: `welcome-${member.id}.png` });
+
+        // Send the message with attachment
+        channel.send({ content: `Welcome to **${member.guild.name}**, ${member}!`, files: [attachment] });
     },
 };
