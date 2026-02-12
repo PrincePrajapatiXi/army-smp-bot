@@ -1,52 +1,239 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Army SMP Bot Dashboard</title>
+    <title>Army SMP Bot — The Ultimate Discord Bot</title>
+    <meta name="description"
+        content="Army SMP Bot — Premium welcome cards, badge system, and server management for your Discord community.">
+    <meta name="theme-color" content="#7c3aed">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
-    <div class="container">
-        <header>
-            <div class="logo">🛡️ Army SMP Bot</div>
-            <nav>
-                <a href="#" class="nav-link">Home</a>
-                <a href="#" class="nav-link">Commands</a>
-                <a href="#" class="nav-link active">Dashboard</a>
-            </nav>
-        </header>
+    <!-- Particle Canvas Background -->
+    <canvas id="particles-canvas"></canvas>
 
-        <main>
-            <section class="hero">
-                <h1>Leading the Charge.</h1>
-                <p>The ultimate utility bot for the Army SMP community.</p>
-                <div class="status-indicator">
-                    <span class="dot"></span> Online
-                </div>
-            </section>
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">
+                <span class="logo-icon">⚔️</span>
+                <span class="logo-text">Army SMP</span>
+            </a>
+            <div class="nav-links" id="nav-links">
+                <a href="#home" class="nav-link active">Home</a>
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#commands" class="nav-link">Commands</a>
+                <a href="#stats" class="nav-link">Stats</a>
+            </div>
+            <div class="nav-actions">
+                <a href="https://discord.com/oauth2/authorize?client_id=1467357929719074838&permissions=8&scope=bot%20applications.commands"
+                    target="_blank" class="btn btn-primary btn-nav">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M20.317 4.492c-1.53-.69-3.17-1.2-4.885-1.49a.075.075 0 0 0-.079.036c-.21.369-.444.85-.608 1.23a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.23A.077.077 0 0 0 8.562 3c-1.714.29-3.354.8-4.885 1.491a.07.07 0 0 0-.032.027C.533 9.093-.32 13.555.099 17.961a.08.08 0 0 0 .031.055 20.03 20.03 0 0 0 5.993 2.98.078.078 0 0 0 .084-.026c.462-.62.874-1.275 1.226-1.963.021-.04.001-.088-.041-.104a13.201 13.201 0 0 1-1.872-.878.075.075 0 0 1-.008-.125c.126-.093.252-.19.372-.287a.075.075 0 0 1 .078-.01c3.927 1.764 8.18 1.764 12.061 0a.075.075 0 0 1 .079.009c.12.098.245.195.372.288a.075.075 0 0 1-.006.125c-.598.344-1.22.635-1.873.877a.075.075 0 0 0-.041.105c.36.687.772 1.341 1.225 1.962a.077.077 0 0 0 .084.028 19.963 19.963 0 0 0 6.002-2.981.076.076 0 0 0 .032-.054c.5-5.094-.838-9.52-3.549-13.442a.06.06 0 0 0-.031-.028z" />
+                    </svg>
+                    Add to Discord
+                </a>
+                <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
 
-            <section class="stats-grid">
-                <div class="card">
-                    <h3>Servers</h3>
-                    <div class="value" id="server-count">--</div>
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-glow"></div>
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span class="badge-dot"></span>
+                Online & Ready
+            </div>
+            <h1 class="hero-title">
+                The Ultimate Bot for
+                <span class="gradient-text">Your Discord Server</span>
+            </h1>
+            <p class="hero-subtitle">
+                Premium welcome cards, custom badge system, and powerful server management — all in one bot. Trusted by
+                servers worldwide.
+            </p>
+            <div class="hero-buttons">
+                <a href="https://discord.com/oauth2/authorize?client_id=1467357929719074838&permissions=8&scope=bot%20applications.commands"
+                    target="_blank" class="btn btn-primary btn-lg">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M20.317 4.492c-1.53-.69-3.17-1.2-4.885-1.49a.075.075 0 0 0-.079.036c-.21.369-.444.85-.608 1.23a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.23A.077.077 0 0 0 8.562 3c-1.714.29-3.354.8-4.885 1.491a.07.07 0 0 0-.032.027C.533 9.093-.32 13.555.099 17.961a.08.08 0 0 0 .031.055 20.03 20.03 0 0 0 5.993 2.98.078.078 0 0 0 .084-.026c.462-.62.874-1.275 1.226-1.963.021-.04.001-.088-.041-.104a13.201 13.201 0 0 1-1.872-.878.075.075 0 0 1-.008-.125c.126-.093.252-.19.372-.287a.075.075 0 0 1 .078-.01c3.927 1.764 8.18 1.764 12.061 0a.075.075 0 0 1 .079.009c.12.098.245.195.372.288a.075.075 0 0 1-.006.125c-.598.344-1.22.635-1.873.877a.075.075 0 0 0-.041.105c.36.687.772 1.341 1.225 1.962a.077.077 0 0 0 .084.028 19.963 19.963 0 0 0 6.002-2.981.076.076 0 0 0 .032-.054c.5-5.094-.838-9.52-3.549-13.442a.06.06 0 0 0-.031-.028z" />
+                    </svg>
+                    Invite Army SMP
+                </a>
+                <a href="https://discord.gg/armysmp" target="_blank" class="btn btn-outline btn-lg">
+                    Support Server
+                </a>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="welcome-card-preview">
+                <div class="preview-header">
+                    <span class="preview-label">W E L C O M E</span>
                 </div>
-                <div class="card">
-                    <h3>Members</h3>
-                    <div class="value" id="user-count">--</div>
+                <div class="preview-avatar">
+                    <div class="preview-avatar-ring"></div>
+                    <div class="preview-avatar-inner">⚔️</div>
                 </div>
-                <div class="card">
-                    <h3>Ping</h3>
-                    <div class="value" id="ping">-- ms</div>
+                <div class="preview-info">
+                    <h3>New Member</h3>
+                    <p>to Army SMP Server</p>
+                    <span class="preview-member">Member #1,234</span>
                 </div>
-            </section>
-        </main>
+            </div>
+        </div>
+    </section>
 
-        <footer>
-            <p>&copy; 2024 Army SMP. All rights reserved.</p>
-        </footer>
-    </div>
+    <!-- Stats Bar -->
+    <section class="stats-bar" id="stats">
+        <div class="stats-container">
+            <div class="stat-item" data-reveal>
+                <div class="stat-icon">🌐</div>
+                <div class="stat-value" data-count="0" id="stat-servers">0</div>
+                <div class="stat-label">Servers</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item" data-reveal>
+                <div class="stat-icon">👥</div>
+                <div class="stat-value" data-count="0" id="stat-users">0</div>
+                <div class="stat-label">Users</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item" data-reveal>
+                <div class="stat-icon">⚡</div>
+                <div class="stat-value" id="stat-commands">0</div>
+                <div class="stat-label">Commands</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item" data-reveal>
+                <div class="stat-icon">🟢</div>
+                <div class="stat-value" id="stat-uptime">99.9%</div>
+                <div class="stat-label">Uptime</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="section-container">
+            <div class="section-header" data-reveal>
+                <span class="section-badge">Features</span>
+                <h2 class="section-title">Everything Your Server Needs</h2>
+                <p class="section-subtitle">Powerful features packed into one sleek bot</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card" data-reveal>
+                    <div class="feature-icon-wrap">
+                        <div class="feature-icon">🎨</div>
+                    </div>
+                    <h3>Welcome Cards</h3>
+                    <p>Beautiful canvas-generated welcome cards with member avatars, custom gradients, and server
+                        branding — sent automatically.</p>
+                </div>
+                <div class="feature-card" data-reveal>
+                    <div class="feature-icon-wrap">
+                        <div class="feature-icon">🏅</div>
+                    </div>
+                    <h3>Badge System</h3>
+                    <p>Create custom badges and assign them to members. Showcase achievements with a dedicated /badge
+                        command.</p>
+                </div>
+                <div class="feature-card" data-reveal>
+                    <div class="feature-icon-wrap">
+                        <div class="feature-icon">🛡️</div>
+                    </div>
+                    <h3>Smart Detection</h3>
+                    <p>Automatically detects the right welcome channel across any server — no manual setup required.</p>
+                </div>
+                <div class="feature-card" data-reveal>
+                    <div class="feature-icon-wrap">
+                        <div class="feature-icon">🎮</div>
+                    </div>
+                    <h3>Minecraft Integration</h3>
+                    <p>Shows your Minecraft server IP and port directly on welcome cards for gaming communities.</p>
+                </div>
+                <div class="feature-card" data-reveal>
+                    <div class="feature-icon-wrap">
+                        <div class="feature-icon">📊</div>
+                    </div>
+                    <h3>Live Dashboard</h3>
+                    <p>Real-time web dashboard showing bot stats, server count, and member metrics with animated
+                        counters.</p>
+                </div>
+                <div class="feature-card" data-reveal>
+                    <div class="feature-icon-wrap">
+                        <div class="feature-icon">⚡</div>
+                    </div>
+                    <h3>Slash Commands</h3>
+                    <p>Modern Discord slash commands with auto-complete, making it easy and intuitive for everyone.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Commands Section -->
+    <section class="commands-section" id="commands">
+        <div class="section-container">
+            <div class="section-header" data-reveal>
+                <span class="section-badge">Commands</span>
+                <h2 class="section-title">Powerful Slash Commands</h2>
+                <p class="section-subtitle">Simple, intuitive commands at your fingertips</p>
+            </div>
+            <div class="commands-list" id="commands-list">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-container" data-reveal>
+            <div class="cta-glow"></div>
+            <h2>Ready to Level Up Your Server?</h2>
+            <p>Join hundreds of Discord servers already using Army SMP Bot</p>
+            <a href="https://discord.com/oauth2/authorize?client_id=1467357929719074838&permissions=8&scope=bot%20applications.commands"
+                target="_blank" class="btn btn-primary btn-lg">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M20.317 4.492c-1.53-.69-3.17-1.2-4.885-1.49a.075.075 0 0 0-.079.036c-.21.369-.444.85-.608 1.23a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.23A.077.077 0 0 0 8.562 3c-1.714.29-3.354.8-4.885 1.491a.07.07 0 0 0-.032.027C.533 9.093-.32 13.555.099 17.961a.08.08 0 0 0 .031.055 20.03 20.03 0 0 0 5.993 2.98.078.078 0 0 0 .084-.026c.462-.62.874-1.275 1.226-1.963.021-.04.001-.088-.041-.104a13.201 13.201 0 0 1-1.872-.878.075.075 0 0 1-.008-.125c.126-.093.252-.19.372-.287a.075.075 0 0 1 .078-.01c3.927 1.764 8.18 1.764 12.061 0a.075.075 0 0 1 .079.009c.12.098.245.195.372.288a.075.075 0 0 1-.006.125c-.598.344-1.22.635-1.873.877a.075.075 0 0 0-.041.105c.36.687.772 1.341 1.225 1.962a.077.077 0 0 0 .084.028 19.963 19.963 0 0 0 6.002-2.981.076.076 0 0 0 .032-.054c.5-5.094-.838-9.52-3.549-13.442a.06.06 0 0 0-.031-.028z" />
+                </svg>
+                Add to Your Server — Free
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <span class="logo-icon">⚔️</span>
+                <span class="logo-text">Army SMP Bot</span>
+            </div>
+            <div class="footer-links">
+                <a href="#home">Home</a>
+                <a href="#features">Features</a>
+                <a href="#commands">Commands</a>
+                <a href="https://discord.gg/armysmp" target="_blank">Support</a>
+            </div>
+            <div class="footer-copy">
+                &copy; 2026 Army SMP. Made with ❤️ by Prince
+            </div>
+        </div>
+    </footer>
+
     <script src="script.js"></script>
 </body>
+
 </html>

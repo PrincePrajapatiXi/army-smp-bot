@@ -11,10 +11,38 @@ const PORT = process.env.PORT || 3000;
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/api/stats', (req, res) => {
+  const totalSeconds = Math.floor(client.uptime / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+
   res.json({
     serverCount: client.guilds.cache.size,
     userCount: client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0),
-    ping: client.ws.ping
+    ping: client.ws.ping,
+    commandCount: client.commands ? client.commands.size : 0,
+    uptime: client.uptime ? `${hours}h ${minutes}m` : 'Starting...',
+    channels: client.channels.cache.size
+  });
+});
+
+app.get('/api/commands', (req, res) => {
+  const cmds = [];
+  if (client.commands) {
+    client.commands.forEach(cmd => {
+      cmds.push({
+        name: cmd.data.name,
+        description: cmd.data.description || 'No description'
+      });
+    });
+  }
+  res.json({ commands: cmds });
+});
+
+app.get('/api/bot', (req, res) => {
+  res.json({
+    name: client.user ? client.user.tag : 'Army SMP Bot',
+    avatar: client.user ? client.user.displayAvatarURL({ size: 256 }) : null,
+    invite: `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&permissions=8&scope=bot%20applications.commands`
   });
 });
 

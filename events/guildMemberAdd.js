@@ -20,13 +20,14 @@ module.exports = {
             console.log(`🚀 EVENT TRIGGERED: New member ${member.user.tag} joined ${member.guild.name}`);
 
             // --- SMART CHANNEL DETECTION ---
-            let channel = member.guild.systemChannel;
+            // Priority: #welcome > systemChannel > #general
+            let channel = member.guild.channels.cache.find(ch =>
+                ch.name.normalize('NFKD').toLowerCase().includes('welcome') &&
+                ch.type === ChannelType.GuildText
+            );
 
             if (!channel) {
-                channel = member.guild.channels.cache.find(ch =>
-                    ch.name.normalize('NFKD').toLowerCase().includes('welcome') &&
-                    ch.type === ChannelType.GuildText
-                );
+                channel = member.guild.systemChannel;
             }
 
             if (!channel) {
