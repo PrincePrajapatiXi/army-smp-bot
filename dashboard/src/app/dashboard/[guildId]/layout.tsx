@@ -1,13 +1,13 @@
 import Sidebar from "@/components/Sidebar";
 import { getBotGuild } from "@/lib/discord";
 
-export default async function DashboardLayout({
-    children,
-    params,
-}: {
+export default async function DashboardLayout(props: {
     children: React.ReactNode;
-    params: { guildId: string };
+    params: Promise<{ guildId: string }>;
 }) {
+    const params = await props.params;
+    const { children } = props;
+
     // Fetch guild details (server-side)
     const guild = await getBotGuild(params.guildId);
 
