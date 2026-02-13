@@ -1,7 +1,8 @@
 import { getBotGuild } from "@/lib/discord";
 import { Users, Hash, ShieldAlert, Zap } from "lucide-react";
 
-export default async function DashboardOverview({ params }: { params: { guildId: string } }) {
+export default async function DashboardOverview(props: { params: Promise<{ guildId: string }> }) {
+    const params = await props.params;
     const guild = await getBotGuild(params.guildId);
 
     if (!guild) return <div>Guild not found</div>;

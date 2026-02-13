@@ -7,8 +7,9 @@ import { hasManageServer, getUserGuilds } from "@/lib/discord";
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { guildId: string } }
+    props: { params: Promise<{ guildId: string }> }
 ) {
+    const params = await props.params;
     const session = await getServerSession(authOptions);
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -34,8 +35,9 @@ export async function GET(
 
 export async function POST(
     req: NextRequest,
-    { params }: { params: { guildId: string } }
+    props: { params: Promise<{ guildId: string }> }
 ) {
+    const params = await props.params;
     const session = await getServerSession(authOptions);
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 

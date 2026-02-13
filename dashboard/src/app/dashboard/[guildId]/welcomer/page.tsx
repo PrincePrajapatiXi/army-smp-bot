@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 
-export default function WelcomerPage({ params }: { params: { guildId: string } }) {
+export default function WelcomerPage(props: { params: Promise<{ guildId: string }> }) {
+    const params = use(props.params);
     const { data: session } = useSession();
     const [config, setConfig] = useState<any>(null);
     const [loading, setLoading] = useState(true);
