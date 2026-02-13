@@ -1,24 +1,24 @@
 const { AttachmentBuilder, ChannelType } = require('discord.js');
 const { createCanvas, loadImage } = require('canvas');
-const fs = require('node:fs');
-const path = require('node:path');
+const { GuildConfig } = require('../db'); // Import MongoDB model
 
-const CONFIG_FILE = path.join(__dirname, '..', 'data', 'welcomeConfig.json');
+const CONFIG_FILE = 'deprecated'; // No longer used
 
-function getWelcomeConfig(guildId) {
-    if (!fs.existsSync(CONFIG_FILE)) return {};
+async function getWelcomeConfig(guildId) {
     try {
-        const data = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
-        return data[guildId] || {};
+        // Fetch from MongoDB
+        const config = await GuildConfig.findOne({ guildId });
+        return config?.welcome || {};
     } catch (e) {
+        console.error("DB Error:", e);
         return {};
     }
 }
 
 // --- CONFIGURATION ---
-const MAIN_SERVER_ID = '804539841932689438';
-const SERVER_IP = 'play.armysmp.fun';
-const SERVER_PORT = '25567';
+const MAIN_SERVER_ID = process.env.MAIN_SERVER_ID || '804539841932689438';
+const SERVER_IP = process.env.SERVER_IP || 'play.armysmp.fun';
+const SERVER_PORT = process.env.SERVER_PORT || '25567';
 
 // Helper function to add ordinal suffix (st, nd, rd, th)
 function getOrdinal(n) {
@@ -33,12 +33,29 @@ module.exports = {
         try {
             console.log(`🚀 EVENT TRIGGERED: New member ${member.user.tag} joined ${member.guild.name}`);
 
-            // --- SMART CHANNEL DETECTION ---
-            // Priority: #welcome > systemChannel > #general
-            let channel = member.guild.channels.cache.find(ch =>
-                ch.name.normalize('NFKD').toLowerCase().includes('welcome') &&
-                ch.type === ChannelType.GuildText
-            );
+            // Fetch Config
+            const welcomeConfig = await getWelcomeConfig(member.guild.id);
+
+            // Check if enabled
+            if (welcomeConfig.enabled === false) {
+                console.log(`⚠️ Welcome module disabled for ${member.guild.name}`);
+                return;
+            }
+
+            // --- SMART CHANNEL DETECTION ---  
+            // Priority: Configured Channel > #welcome > systemChannel > #general
+            let channel = null;
+
+            if (welcomeConfig.channelId) {
+                channel = member.guild.channels.cache.get(welcomeConfig.channelId);
+            }
+
+            if (!channel) {
+                channel = member.guild.channels.cache.find(ch =>
+                    ch.name.normalize('NFKD').toLowerCase().includes('welcome') &&
+                    ch.type === ChannelType.GuildText
+                );
+            }
 
             if (!channel) {
                 channel = member.guild.systemChannel;
@@ -69,12 +86,11 @@ module.exports = {
             const ctx = canvas.getContext('2d');
 
             // Background or Gradient
-            const config = getWelcomeConfig(member.guild.id);
             let backgroundLoaded = false;
 
-            if (config.background) {
+            if (welcomeConfig.background) {
                 try {
-                    const bgImage = await loadImage(config.background);
+                    const bgImage = await loadImage(welcomeConfig.background);
                     // Draw user image scaling to cover the canvas (cover mode)
                     const hRatio = canvas.width / bgImage.width;
                     const vRatio = canvas.height / bgImage.height;
@@ -208,8 +224,16 @@ module.exports = {
             const buffer = canvas.toBuffer('image/png');
             const attachment = new AttachmentBuilder(buffer, { name: `welcome-${member.id}.png` });
 
+            // Use configured message or default
+            const messageContent = welcomeConfig.message
+                ? welcomeConfig.message
+                    .replace(/{user}/g, member.toString())
+                    .replace(/{server}/g, member.guild.name)
+                    .replace(/{count}/g, memberCount)
+                : `Welcome to **${member.guild.name}**, ${member}!`;
+
             await channel.send({
-                content: `Welcome to **${member.guild.name}**, ${member}!`,
+                content: messageContent,
                 files: [attachment]
             });
             console.log(`✅ WELCOME SENT for ${member.user.tag} in ${member.guild.name}`);

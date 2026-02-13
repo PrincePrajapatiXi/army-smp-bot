@@ -6,7 +6,7 @@ const express = require('express');
 
 // --- EXPRESS DASHBOARD BASE ---
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -128,8 +128,9 @@ for (const file of eventFiles) {
   }
 }
 
-// --- INTERACTION CREATE HANDLER (Manually handled here for simplicity or can be an event) ---
-// We can also move this to events/interactionCreate.js but for now, let's keep it clean or move it.
-// Let's actually move it to events/interactionCreate.js to be fully modular!
+const { connectDB } = require('./db');
+
+// Connect to Database
+connectDB();
 
 client.login(TOKEN);
