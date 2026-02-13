@@ -201,7 +201,7 @@ module.exports = {
 
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
                 ctx.font = '18px Arial, sans-serif';
-                ctx.fillText('Enjoy your stay and have fun! 🎉', textX, 340);
+                ctx.fillText('Enjoy your stay and have fun!', textX, 340);
             }
 
             // Convert canvas to buffer and send
