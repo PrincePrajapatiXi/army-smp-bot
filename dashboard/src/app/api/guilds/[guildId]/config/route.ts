@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import GuildConfig from "@/models/GuildConfig";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { hasManageServer, getUserGuilds } from "@/lib/discord";
 
 export async function GET(
